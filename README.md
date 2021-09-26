@@ -20,30 +20,26 @@ instructions](https://wiki.alpinelinux.org/wiki/Raspberry_Pi_-_Headless_Installa
 
 * Alpine Linux 3.14.
 * Raspberry Pi 4 Model B - 4GB.
+* Also tested on Raspberry Pi 3 Model - 1GB.
 
 ## 1 - Prepare the SD card
 
-The SD card needs at least 2 partitions, one FAT32 boot partition and then at
-least 1 more Linux type partition. This assumes you have installed `fdisk` and
+The SD card needs the correct FAT32 boot partition. This assumes you have installed `fdisk` and
 want to wipe the SD card.
 
 1. Check the name of the device using `fdisk -l` - in my case it is
    `/dev/mmcblk0`.
-2. Launch fdisk against the device: `fdisk /dev/mmcblk0`
-3. If necessary, remove all existing partitions using the `d` command.
-4. Use the `n` command to create a new primary partition in position 1. Accept
-   the default start placement and set `+256M` for the end position. Use the
-   `t` command to set the type to `WIN 95 FAT32 (LBA)`.
-5. Use the `n` command to create a second primary partition in position 2.
-   Accept the default start placement and allow it to use the remainder of the
-   disk. Use the `t` command to set the type to `Linux`.
-6. Use the `a` command to toggle the first partition as bootable.
-7. Enter `w` to write the changes to the SD card.
-8. Assuming you now have two partitions called `/dev/mmcblk1p1` and
-   `/dev/mmcblk1p2` (check with `fdisk -l`), create the filesystem:
+1. Launch fdisk against the device: `fdisk /dev/mmcblk0`
+1. If necessary, remove all existing partitions using the `d` command.
+1. Use the `n` command to create a new primary partition in position 1. Accept
+   the default start placement and set the end position to take up the whole SD card. 
+   Use the `t` command to set the type to `WIN 95 FAT32 (LBA)`, which is "0c".
+1. Use the `a` command to toggle the first partition as bootable.
+1. Enter `w` to write the changes to the SD card.
+1. Assuming you now have a partition called `/dev/mmcblk1p1`
+   (check with `fdisk -l`), create the filesystem:
 ```
 mkdosfs -F 32 /dev/mmcblk1p1
-mkfs.ext4 /dev/mmcblk1p2
 ```
 
 ## 2 - Copy the Alpine system to the SD card
@@ -84,15 +80,14 @@ can therefore be used to finish the configuration:
 
 1. Insert the SD card into the Raspberry Pi and then boot it up. Check your
    router to find out what IP address gets assigned.
-2. SSH to the appropriate IP address as root with no password. Alpine will be
+1. SSH to the appropriate IP address as root with no password. Alpine will be
    running in [diskless
    mode](https://wiki.alpinelinux.org/wiki/Installation#Diskless_Mode).
-3. Run `setup-alpine` and follow the instructions. It will report there are no
-   available disks and ask you to pick one. Assuming your SD card device is
-   called `mmcblk0` then choose that device for `sys`. It will ask you if you want to
-   erase the disk and then configure it as a persistent disk.
-4. Reboot.
-5. Create a new user to log into future sessions as.
+1. Run `setup-alpine` and follow the instructions. It will report there are no
+   available disks and ask you to pick one. To keep running diskless mode, as it
+   will write less to the SD card, you do not select any (or none).
+1. Reboot.
+1. Create a new user to log into future sessions as.
 
 ## Overlay directory structure
 
